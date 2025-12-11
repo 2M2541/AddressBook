@@ -119,3 +119,28 @@ function exportContacts() {
 function importContacts(fileInput) {
     const file = fileInput.files[0];
     if (!file) return;
+
+    // 构建FormData（用于上传文件）
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('http://localhost:5000/api/contacts/import', {
+        method: 'POST',
+        body: formData // 无需设置Content-Type，浏览器自动处理
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            loadContacts(); // 刷新列表
+            fileInput.value = ''; // 清空文件选择框
+        } else {
+            alert('导入失败：' + data.error);
+        }
+    })
+    .catch(err => {
+        console.error('导入失败：', err);
+        alert('导入失败，请检查文件格式或后端服务！');
+        fileInput.value = '';
+    });
+}
